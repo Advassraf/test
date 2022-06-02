@@ -13,6 +13,13 @@ export const usePeopleFetch = () => {
     setIsLoading(true);
     const response = await axios.get(`https://randomuser.me/api/?results=25&page=1`);
     setIsLoading(false);
+    {
+      response.data.results.forEach((user)=>{
+        if (localStorage.getItem(user.name.username)){
+          user.favorite = true;
+        }
+      })
+    }
     setUsers(response.data.results);
   }
 

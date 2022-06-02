@@ -6,8 +6,11 @@ import IconButton from "@material-ui/core/IconButton";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import * as S from "./style";
 
-const UserList = ({ users, isLoading }) => {
+
+const UserList = ({ users, isLoading, onScrollEnd }) => {
   const [hoveredUserId, setHoveredUserId] = useState();
+
+  const [filterCountry, setFilterCountry] = useState([]);
 
   const handleMouseEnter = (index) => {
     setHoveredUserId(index);
@@ -17,16 +20,50 @@ const UserList = ({ users, isLoading }) => {
     setHoveredUserId();
   };
 
+  const getCountryList = (value, isChecked) => {
+
+    let ls = [];
+    filterCountry.forEach((f) => {
+      if (f == value) return;      
+      ls.push(f);
+    });
+    if (isChecked) {
+      ls.push(value);
+    }
+    setFilterCountry(ls);
+  };
+
+  const clickFavorite = (user) => {
+    user.favorite = !user.favorite;
+    if (user.favorite)
+      localStorage.setItem(user.login.username,'true');
+    else
+      localStorage.removeItem(user.login.username);
+  };
+
+  const infintyScroll = (e) => {
+    let element = e.target
+    if (element.scrollHeight - element.scrollTop === element.clientHeight){
+      console.log("end");
+      onScrollEnd && onScrollEnd()
+    }
+  };
+
   return (
     <S.UserList>
       <S.Filters>
-        <CheckBox value="BR" label="Brazil" />
-        <CheckBox value="AU" label="Australia" />
-        <CheckBox value="CA" label="Canada" />
-        <CheckBox value="DE" label="Germany" />
+        <CheckBox value="BR" label="Brazil" onChange={getCountryList} />
+        <CheckBox value="AU" label="Australia" onChange={getCountryList} />
+        <CheckBox value="CA" label="Canada" onChange={getCountryList} />
+        <CheckBox value="DE" label="Germany" onChange={getCountryList} />
+        <CheckBox value="DK" label="Denmark" onChange={getCountryList} />
       </S.Filters>
-      <S.List>
-        {users.map((user, index) => {
+      <S.List onScroll={infintyScroll}>
+        {users.filter((user) => {
+          if (filterCountry.length == 0) return true;
+          if (filterCountry.includes(user.nat)) return true;
+          return false;
+        }).map((user, index) => {
           return (
             <S.User
               key={index}
@@ -46,7 +83,7 @@ const UserList = ({ users, isLoading }) => {
                   {user?.location.city} {user?.location.country}
                 </Text>
               </S.UserInfo>
-              <S.IconButtonWrapper isVisible={index === hoveredUserId}>
+              <S.IconButtonWrapper onClick={() => clickFavorite(user)} isVisible={user.favorite || index === hoveredUserId}>
                 <IconButton>
                   <FavoriteIcon color="error" />
                 </IconButton>

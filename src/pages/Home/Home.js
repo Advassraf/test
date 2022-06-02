@@ -7,6 +7,11 @@ import * as S from "./style";
 const Home = () => {
   const { users, isLoading } = usePeopleFetch();
 
+  const addMoreContact = () => {
+    //const{newUsers,isLoading} = usePeopleFetch();
+    //users.push()
+  };
+
   return (
     <S.Home>
       <S.Content>
@@ -15,7 +20,7 @@ const Home = () => {
             PplFinder
           </Text>
         </S.Header>
-        <UserList users={users} isLoading={isLoading} />
+        <UserList users={users} isLoading={isLoading} onScrollEnd={addMoreContact} />
       </S.Content>
     </S.Home>
   );
